@@ -21,7 +21,7 @@ app.post("/create-payment-intent", async (req, res) => {
       return res.status(400).json({ error: "Invalid amount" });
     }
 
-    const fee = Math.round(amount * 0.12);
+   const fee = Math.round(amount * 0.10);
 
     const paymentIntent = await stripe.paymentIntents.create({
       amount,
