@@ -7,16 +7,15 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// 🔑 Stripe Secret Key
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
-// Test route
+// test route
 app.get("/", (req, res) => {
   res.json({ ok: true, message: "Stripe API running 🚀" });
 });
 
-// 💳 Create Payment Intent (PA 10%)
-app.post("/create-payment-intent", async (req, res) => {
+// CREATE PAYMENT (DYNAMIC AMOUNT)
+app.post("/create-listing-payment", async (req, res) => {
   try {
     const { amount } = req.body;
 
@@ -25,7 +24,7 @@ app.post("/create-payment-intent", async (req, res) => {
     }
 
     const paymentIntent = await stripe.paymentIntents.create({
-      amount: amount,
+      amount: amount, // p.sh 4600 = CHF 46
       currency: "chf",
       automatic_payment_methods: { enabled: true }
     });
@@ -35,30 +34,12 @@ app.post("/create-payment-intent", async (req, res) => {
     });
 
   } catch (err) {
+    console.error(err);
     res.status(500).json({ error: err.message });
   }
 });
 
-// 💰 Payment për POSTIM KERRI (10 CHF)
-app.post("/create-listing-payment", async (req, res) => {
-  try {
-    const paymentIntent = await stripe.paymentIntents.create({
-      amount: 1000, // 10 CHF
-      currency: "chf",
-      automatic_payment_methods: { enabled: true }
-    });
-
-    res.json({
-      clientSecret: paymentIntent.client_secret
-    });
-
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
-// 🚀 Start server
 const PORT = process.env.PORT || 10000;
 app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+  console.log("Server running on port", PORT);
 });
